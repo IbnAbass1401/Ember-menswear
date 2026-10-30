@@ -1,13 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/dm-sans";
 import "./globals.css";
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["600", "800"],
-  variable: "--font-bricolage",
-});
-const dm = DM_Sans({ subsets: ["latin"], variable: "--font-dm" });
+import Navbar from "@/components/layout/Navbar";
+import CartDrawer from "@/components/cart/CartDrawer";
+import CartHydrator from "@/components/cart/CartHydrator";
 
 export const metadata: Metadata = {
   title: "Ember – Menswear",
@@ -21,11 +18,21 @@ export const viewport: Viewport = {
   themeColor: "#0E0904",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${bricolage.variable} ${dm.variable} bg-noir font-sans text-cream antialiased`}>
-        {children}
+      <body className="flex min-h-screen flex-col bg-noir font-sans text-cream antialiased">
+        <CartHydrator />
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <footer className="border-t border-ember/15 px-4 py-8 text-center text-sm text-cream/50">
+          © 2026 Ember Menswear
+        </footer>
+        <CartDrawer />
       </body>
     </html>
   );

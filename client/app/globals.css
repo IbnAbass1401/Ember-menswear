@@ -7,6 +7,9 @@
   --color-rust: #B45309;
   --color-cream: #FFF8E7;
 
+  --font-display: "Bricolage Grotesque Variable", system-ui, sans-serif;
+  --font-sans: "DM Sans Variable", system-ui, sans-serif;
+
   --shadow-glow: 0 0 24px rgba(251, 191, 36, 0.35);
   --shadow-glow-lg: 0 0 34px rgba(251, 191, 36, 0.55);
 
@@ -16,13 +19,14 @@
   }
 }
 
-@theme inline {
-  --font-display: var(--font-bricolage), system-ui, sans-serif;
-  --font-sans: var(--font-dm), system-ui, sans-serif;
+html {
+  background: var(--color-noir);
+  color-scheme: dark;
 }
 
-html { background: var(--color-noir); color-scheme: dark; }
-
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
