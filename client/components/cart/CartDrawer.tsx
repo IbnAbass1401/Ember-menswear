@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCart } from "@/store/cart";
 import { formatPrice } from "@/lib/api";
@@ -96,13 +97,25 @@ export default function CartDrawer() {
               <span className="text-cream/70">Subtotal</span>
               <span className="text-xl font-bold text-ember">{formatPrice(subtotal)}</span>
             </div>
-            <button
-              disabled
-              className="mt-4 min-h-12 w-full rounded-xl bg-ember font-bold text-noir opacity-60"
-            >
-              Checkout
-            </button>
-            <p className="mt-2 text-center text-xs text-cream/50">Checkout gets built in the next steps.</p>
+            {items.length === 0 ? (
+              <button
+                disabled
+                className="mt-4 min-h-12 w-full rounded-xl bg-ember font-bold text-noir opacity-60"
+              >
+                Checkout
+              </button>
+            ) : (
+              <Link
+                href="/checkout"
+                onClick={() => setOpen(false)}
+                className="mt-4 flex min-h-12 w-full items-center justify-center rounded-xl bg-ember font-bold text-noir transition hover:shadow-glow active:scale-[0.99]"
+              >
+                Checkout
+              </Link>
+            )}
+            <p className="mt-2 text-center text-xs text-cream/50">
+              Free delivery over $120 · 7-day easy returns
+            </p>
           </div>
         </motion.aside>
       )}

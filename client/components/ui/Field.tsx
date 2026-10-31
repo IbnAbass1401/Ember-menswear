@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 
 type Props = {
   label: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "tel";
   value: string;
   onChange: (value: string) => void;
   error?: string;
@@ -34,6 +34,7 @@ export default function Field({
         <input
           id={id}
           type={isPassword && show ? "text" : type}
+          inputMode={type === "tel" ? "tel" : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           autoComplete={autoComplete}
