@@ -231,7 +231,7 @@ export default function CheckoutForm() {
           <ul className="mt-3 divide-y divide-cream/10">
             {items.map((i) => (
               <li key={i.key} className="flex gap-3 py-3">
-                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-rust/40 to-noir">
+                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-linear-to-br from-rust/40 to-noir">
                   {i.image && (
                     <img src={i.image} alt="" className="h-full w-full object-cover" />
                   )}
