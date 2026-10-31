@@ -5,9 +5,18 @@ import Link from "next/link";
 import { apiRequest, ApiError } from "@/lib/client-api";
 import { formatPrice } from "@/lib/api";
 import { STATUS_LABEL, formatNaira, type Order } from "@/lib/orders";
+import OrderProgress from "@/components/order/OrderProgress";
 
 type OrderResponse = { order: Order; estimatedNGN: number | null };
 type VerifyResponse = { paid: boolean; paymentStatus?: string; order: Order };
+
+const TITLE: Record<Order["status"], string> = {
+  pending: "Order received",
+  paid: "Payment received",
+  shipped: "Your order is on the way",
+  delivered: "Order delivered",
+  cancelled: "Order cancelled",
+};
 
 export default function OrderView({ id, reference }: { id: string; reference?: string }) {
   const [order, setOrder] = useState<Order | null>(null);
@@ -112,16 +121,10 @@ export default function OrderView({ id, reference }: { id: string; reference?: s
   }
 
   const a = order.shippingAddress;
-  const title =
-    order.status === "pending"
-      ? "Order received"
-      : order.status === "cancelled"
-        ? "Order cancelled"
-        : "Payment received";
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
-      <h1 className="font-display text-3xl font-bold">{title}</h1>
+      <h1 className="font-display text-3xl font-bold">{TITLE[order.status]}</h1>
       <p className="mt-2 text-cream/70">
         Order #{order._id.slice(-8).toUpperCase()} ·{" "}
         {new Date(order.createdAt).toLocaleDateString("en-US", { dateStyle: "medium" })}
@@ -130,6 +133,8 @@ export default function OrderView({ id, reference }: { id: string; reference?: s
       <span className="mt-4 inline-flex items-center rounded-full border border-ember/40 px-3 py-1 text-sm text-ember">
         {STATUS_LABEL[order.status]}
       </span>
+
+      <OrderProgress order={order} />
 
       {checking && (
         <div
@@ -243,10 +248,10 @@ export default function OrderView({ id, reference }: { id: string; reference?: s
           Continue shopping
         </Link>
         <Link
-          href="/account"
+          href="/account/orders"
           className="flex h-12 items-center justify-center rounded-xl border border-cream/20 px-6 font-medium transition hover:border-ember hover:text-ember"
         >
-          My account
+          My orders
         </Link>
       </div>
     </div>
