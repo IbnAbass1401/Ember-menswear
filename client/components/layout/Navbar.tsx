@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Logo from "./Logo";
+import UserMenu from "./UserMenu";
 import { useCart } from "@/store/cart";
 
 export default function Navbar() {
@@ -12,7 +13,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-30 border-b border-ember/15 bg-noir/85 pt-[env(safe-area-inset-top)] backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Logo />
-        <nav className="flex items-center gap-2 sm:gap-6">
+        <nav className="flex items-center gap-2 sm:gap-4">
           <Link href="/shop" className="flex min-h-11 items-center px-3 text-cream/70 transition hover:text-ember">
             Shop
           </Link>
@@ -34,6 +35,7 @@ export default function Navbar() {
               </span>
             )}
           </button>
+          <UserMenu />
         </nav>
       </div>
     </header>
