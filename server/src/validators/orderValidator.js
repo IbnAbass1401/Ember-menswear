@@ -21,3 +21,7 @@ export const createOrderSchema = z.object({
     postalCode: z.string().trim().max(20).optional(),
   }),
 });
+
+export const verifyPaymentSchema = z.object({
+  reference: z.string().trim().min(5, "Missing payment reference").max(100),
+});

@@ -4,30 +4,89 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiRequest, ApiError } from "@/lib/client-api";
 import { formatPrice } from "@/lib/api";
-import { STATUS_LABEL, type Order } from "@/lib/orders";
+import { STATUS_LABEL, formatNaira, type Order } from "@/lib/orders";
 
-export default function OrderView({ id }: { id: string }) {
+type OrderResponse = { order: Order; estimatedNGN: number | null };
+type VerifyResponse = { paid: boolean; paymentStatus?: string; order: Order };
+
+export default function OrderView({ id, reference }: { id: string; reference?: string }) {
   const [order, setOrder] = useState<Order | null>(null);
+  const [estimatedNGN, setEstimatedNGN] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [checking, setChecking] = useState(!!reference);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    apiRequest<{ order: Order }>(`/orders/${id}`)
-      .then((data) => {
-        if (!cancelled) setOrder(data.order);
-      })
-      .catch((err) => {
+
+    async function load() {
+      try {
+        const data = await apiRequest<OrderResponse>(`/orders/${id}`);
+        if (cancelled) return;
+        setOrder(data.order);
+        setEstimatedNGN(data.estimatedNGN);
+
+        // Customer just came back from Paystack: ask the server to confirm the payment
+        if (reference && data.order.status === "pending") {
+          try {
+            const v = await apiRequest<VerifyResponse>(
+              `/orders/${id}/verify`,
+              { reference },
+              "POST"
+            );
+            if (cancelled) return;
+            setOrder(v.order);
+            if (!v.paid) {
+              setNotice(
+                v.paymentStatus === "abandoned"
+                  ? "You left before paying. Your order is saved, you can pay below."
+                  : "Your payment didn't go through. You can try again below."
+              );
+            }
+          } catch (err) {
+            if (cancelled) return;
+            setNotice(
+              err instanceof Error
+                ? err.message
+                : "We couldn't confirm your payment yet. Refresh in a moment."
+            );
+          }
+        }
+      } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && (err.status === 404 || err.status === 400)) {
           setError("We couldn't find that order.");
         } else {
           setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
         }
-      });
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    }
+
+    load();
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, reference]);
+
+  async function onPay() {
+    setPayError("");
+    setPaying(true);
+    try {
+      const data = await apiRequest<{ authorizationUrl: string }>(
+        `/orders/${id}/pay`,
+        undefined,
+        "POST"
+      );
+      window.location.href = data.authorizationUrl; // off to Paystack
+    } catch (err) {
+      setPayError(err instanceof Error ? err.message : "Couldn't start the payment. Try again.");
+      setPaying(false);
+    }
+  }
 
   if (error) {
     return (
@@ -53,10 +112,16 @@ export default function OrderView({ id }: { id: string }) {
   }
 
   const a = order.shippingAddress;
+  const title =
+    order.status === "pending"
+      ? "Order received"
+      : order.status === "cancelled"
+        ? "Order cancelled"
+        : "Payment received";
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
-      <h1 className="font-display text-3xl font-bold">Order received</h1>
+      <h1 className="font-display text-3xl font-bold">{title}</h1>
       <p className="mt-2 text-cream/70">
         Order #{order._id.slice(-8).toUpperCase()} ·{" "}
         {new Date(order.createdAt).toLocaleDateString("en-US", { dateStyle: "medium" })}
@@ -65,9 +130,59 @@ export default function OrderView({ id }: { id: string }) {
       <span className="mt-4 inline-flex items-center rounded-full border border-ember/40 px-3 py-1 text-sm text-ember">
         {STATUS_LABEL[order.status]}
       </span>
-      {order.status === "pending" && (
-        <p className="mt-3 text-sm text-cream/60">Online payment is coming soon.</p>
+
+      {checking && (
+        <div
+          role="status"
+          className="mt-5 rounded-xl border border-ember/30 bg-ember/10 px-4 py-3 text-sm"
+        >
+          Confirming your payment...
+        </div>
       )}
+
+      {notice && !checking && order.status === "pending" && (
+        <div
+          role="alert"
+          className="mt-5 rounded-xl border border-ember/30 bg-ember/10 px-4 py-3 text-sm"
+        >
+          {notice}
+        </div>
+      )}
+
+      {order.status === "pending" && !checking && (
+        <section className="mt-6 rounded-2xl border border-ember/30 bg-surface p-5">
+          <h2 className="font-display text-lg font-semibold">Pay for your order</h2>
+          <p className="mt-2 text-sm text-cream/70">
+            You&rsquo;ll pay securely on Paystack in naira.
+            {estimatedNGN ? ` Estimated charge: ${formatNaira(estimatedNGN)}.` : ""} If your card is
+            in another currency, your bank converts it.
+          </p>
+
+          {payError && (
+            <div
+              role="alert"
+              className="mt-4 rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            >
+              {payError}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={onPay}
+            disabled={paying}
+            className="mt-4 h-12 w-full rounded-xl bg-ember font-semibold text-noir transition hover:shadow-glow active:scale-[0.99] disabled:opacity-60"
+          >
+            {paying ? "Taking you to Paystack..." : `Pay now · ${formatPrice(order.total)}`}
+          </button>
+        </section>
+      )}
+
+      {order.status !== "pending" && order.amountChargedKobo ? (
+        <p className="mt-4 text-sm text-cream/60">
+          Charged {formatNaira(order.amountChargedKobo / 100)} via Paystack.
+        </p>
+      ) : null}
 
       <section className="mt-8 rounded-2xl border border-cream/10 bg-surface p-5">
         <h2 className="font-display text-lg font-semibold">Items</h2>

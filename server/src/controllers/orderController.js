@@ -86,5 +86,10 @@ export const getOrder = async (req, res) => {
   // Only the owner can see their order
   const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
   if (!order) throw new AppError("Order not found", 404);
-  res.json({ success: true, order });
+
+  // Rough naira amount, shown before the customer pays (the real charge is set when they tap Pay)
+  const rate = Number(process.env.USD_NGN_RATE);
+  const estimatedNGN = rate > 0 ? Math.round(order.total * rate) : null;
+
+  res.json({ success: true, order, estimatedNGN });
 };

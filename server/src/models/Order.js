@@ -40,10 +40,18 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
     paidAt: Date,
+
+    // Payment details (Paystack)
+    paymentReference: String,
+    amountChargedKobo: Number, // what we asked Paystack to charge, in kobo (NGN x 100)
+    usdNgnRate: Number, // the rate used for that charge
+    paystackTransactionId: String,
+    stockIssue: { type: Boolean, default: false }, // paid, but stock ran out in the meantime
   },
   { timestamps: true }
 );
 
 orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ paymentReference: 1 });
 
 export default mongoose.model("Order", orderSchema);

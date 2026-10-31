@@ -6,13 +6,18 @@ export const metadata: Metadata = { title: "Your order | Ember" };
 
 export default async function OrderPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ reference?: string; trxref?: string }>;
 }) {
   const { id } = await params;
+  const sp = await searchParams;
+  const reference = sp.reference ?? sp.trxref;
+
   return (
     <RequireAuth>
-      <OrderView id={id} />
+      <OrderView id={id} reference={reference} />
     </RequireAuth>
   );
 }
