@@ -18,6 +18,7 @@ type AuthState = {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User) => void;
 };
 
 async function request(path: string, body?: unknown, method = "GET") {
@@ -66,5 +67,10 @@ export const useAuth = create<AuthState>((set, get) => ({
   async logout() {
     await request("/auth/logout", {}, "POST");
     set({ user: null, status: "guest" });
+  },
+
+  // Used after the profile is edited, so the navbar and pages update instantly
+  setUser(user) {
+    set({ user });
   },
 }));

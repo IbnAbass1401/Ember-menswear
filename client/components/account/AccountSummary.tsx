@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useAuth } from "@/store/auth";
+import ProfileForm from "@/components/account/ProfileForm";
+import PasswordForm from "@/components/account/PasswordForm";
 
 export default function AccountSummary() {
   const user = useAuth((s) => s.user);
@@ -18,25 +19,25 @@ export default function AccountSummary() {
   }
 
   return (
-    <div className="max-w-md">
-      <div className="rounded-2xl border border-cream/10 bg-surface p-5">
-        <p className="text-sm text-cream/60">Name</p>
-        <p className="font-medium">{user.name}</p>
-        <p className="mt-4 text-sm text-cream/60">Email</p>
-        <p className="break-all font-medium">{user.email}</p>
-      </div>
+    <div className="max-w-md space-y-6">
+      <section className="rounded-2xl border border-cream/10 bg-surface p-5">
+        <h2 className="font-display text-xl font-semibold">Profile</h2>
+        <div className="mt-5">
+          <ProfileForm />
+        </div>
+      </section>
 
-      <Link
-        href="/account/orders"
-        className="mt-4 flex h-12 items-center justify-center rounded-xl bg-ember font-semibold text-noir transition hover:shadow-glow"
-      >
-        View my orders
-      </Link>
+      <section className="rounded-2xl border border-cream/10 bg-surface p-5">
+        <h2 className="font-display text-xl font-semibold">Change password</h2>
+        <div className="mt-5">
+          <PasswordForm />
+        </div>
+      </section>
 
       <button
         type="button"
         onClick={onLogout}
-        className="mt-3 h-12 w-full rounded-xl border border-cream/20 font-medium transition hover:border-ember hover:text-ember"
+        className="h-12 w-full rounded-xl border border-cream/20 font-medium transition hover:border-ember hover:text-ember"
       >
         Log out
       </button>
