@@ -86,6 +86,22 @@ export default function UserMenu() {
           >
             My account
           </Link>
+          <Link
+            href="/account/orders"
+            onClick={() => setOpen(false)}
+            className="flex h-11 items-center rounded-xl px-3 hover:bg-cream/5"
+          >
+            My orders
+          </Link>
+          {user.role === "admin" && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="flex h-11 items-center rounded-xl px-3 text-ember hover:bg-cream/5"
+            >
+              Admin
+            </Link>
+          )}
           <button
             type="button"
             onClick={onLogout}
