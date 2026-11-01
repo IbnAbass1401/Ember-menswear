@@ -17,3 +17,20 @@ export type AdminStats = {
     customer: { name: string; email: string } | null;
   }[];
 };
+
+export type AdminOrderRow = {
+  _id: string;
+  status: Order["status"];
+  total: number;
+  createdAt: string;
+  customer: { name: string; email: string } | null;
+  items: { name: string; qty: number }[];
+};
+
+export type AdminOrderDetail = Order & {
+  customer: { name: string; email: string } | null;
+  paymentReference?: string;
+  usdNgnRate?: number;
+  paystackTransactionId?: string;
+  stockIssue?: boolean;
+};
