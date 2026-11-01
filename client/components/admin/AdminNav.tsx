@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// More tabs get added as we build Products, Orders and Users
-const TABS = [{ href: "/admin", label: "Dashboard" }];
+// More tabs get added as we build Orders and Users
+const TABS = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/products", label: "Products" },
+];
 
 export default function AdminNav() {
   const pathname = usePathname();

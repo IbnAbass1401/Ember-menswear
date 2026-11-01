@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Makes hover: styles also work on touch devices and in device mode */
+@custom-variant hover (&:hover);
+
 @theme {
   --color-noir: #0E0904;
   --color-surface: #2B1D0E;
@@ -14,19 +17,11 @@
   --shadow-glow-lg: 0 0 34px rgba(251, 191, 36, 0.55);
 
   --animate-pop: pop 0.4s;
-  @keyframes pop {
-    50% { transform: scale(1.5); }
-  }
+  @keyframes pop { 50% { transform: scale(1.5); } }
 }
 
-html {
-  background: var(--color-noir);
-  color-scheme: dark;
-}
+html { background: var(--color-noir); color-scheme: dark; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation: none !important;
-    transition: none !important;
-  }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
