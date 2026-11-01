@@ -5,6 +5,7 @@ import {
   getAdminOrder,
   updateOrderStatus,
 } from "../controllers/adminOrderController.js";
+import { listUsers } from "../controllers/adminUserController.js";
 import { protect, restrictTo } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { updateOrderStatusSchema } from "../validators/adminValidator.js";
@@ -19,5 +20,7 @@ router.get("/stats", getStats);
 router.get("/orders", listOrders);
 router.get("/orders/:id", getAdminOrder);
 router.patch("/orders/:id/status", validate(updateOrderStatusSchema), updateOrderStatus);
+
+router.get("/users", listUsers);
 
 export default router;
