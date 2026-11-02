@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, ReactNode, useState } from "react";
-import { CATEGORIES, type AdminProduct, type ProductPayload } from "@/lib/admin-products";
+import { CATEGORIES, MAX_IMAGES, type AdminProduct, type ProductPayload } from "@/lib/admin-products";
+import ImageUploader from "@/components/admin/ImageUploader";
 
 type Props = {
   initial?: AdminProduct;
@@ -49,16 +50,18 @@ export default function ProductForm({ initial, submitLabel, onSubmit }: Props) {
   const [category, setCategory] = useState<string>(initial?.category ?? CATEGORIES[0]);
   const [stock, setStock] = useState(initial ? String(initial.stock) : "25");
   const [sizes, setSizes] = useState((initial?.sizes ?? []).map(String).join(", "));
-  const [images, setImages] = useState((initial?.images ?? []).join("\n"));
+  const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
 
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (uploading) return;
     setFormError("");
     setSuccess("");
 
@@ -85,7 +88,7 @@ export default function ProductForm({ initial, submitLabel, onSubmit }: Props) {
       stock: stockNum,
       featured,
       sizes: [...new Set(sizes.split(",").map((s) => s.trim()).filter(Boolean))],
-      images: images.split("\n").map((s) => s.trim()).filter(Boolean),
+      images,
     };
 
     setBusy(true);
@@ -185,19 +188,13 @@ export default function ProductForm({ initial, submitLabel, onSubmit }: Props) {
         />
       </Row>
 
-      <Row
-        label="Image links"
-        htmlFor="p-images"
-        hint="One link per line. Leave empty for now: photo uploads come in a later step."
-      >
-        <textarea
-          id="p-images"
-          value={images}
-          onChange={(e) => setImages(e.target.value)}
-          rows={3}
-          className={`min-h-24 py-3 ${inputCls()}`}
-        />
-      </Row>
+      <div>
+        <p className="mb-1.5 text-sm font-medium text-cream/80">Photos</p>
+        <ImageUploader value={images} onChange={setImages} onUploadingChange={setUploading} />
+        <p className="mt-1.5 text-xs text-cream/50">
+          The first photo is the main one. JPG, PNG or WEBP, up to 5MB each, max {MAX_IMAGES} photos.
+        </p>
+      </div>
 
       <label className="flex min-h-11 cursor-pointer items-center gap-3">
         <input
@@ -211,10 +208,10 @@ export default function ProductForm({ initial, submitLabel, onSubmit }: Props) {
 
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || uploading}
         className="h-12 w-full rounded-xl bg-ember font-semibold text-noir transition hover:shadow-glow active:scale-[0.99] disabled:opacity-60 sm:w-auto sm:px-8"
       >
-        {busy ? "Saving..." : submitLabel}
+        {busy ? "Saving..." : uploading ? "Uploading photos..." : submitLabel}
       </button>
     </form>
   );
