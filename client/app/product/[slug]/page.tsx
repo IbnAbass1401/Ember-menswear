@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduct, formatPrice } from "@/lib/api";
 import AddToCart from "@/components/product/AddToCart";
-import Photo from "@/components/ui/Photo";
+import ProductGallery from "@/components/product/ProductGallery";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -16,15 +16,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </Link>
 
       <div className="mt-2 grid gap-8 lg:grid-cols-2 lg:gap-14">
-        <div className="relative">
-          <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-ember/10 blur-3xl" />
-          <Photo
-            src={product.images?.[0]}
-            alt={product.name}
-            label
-            className="relative aspect-4/5 w-full rounded-2xl border border-ember/15"
-          />
-        </div>
+        <ProductGallery images={product.images ?? []} alt={product.name} />
 
         <div>
           <p className="text-sm text-cream/50">{product.category}</p>
