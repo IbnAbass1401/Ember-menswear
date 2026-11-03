@@ -8,6 +8,7 @@ import {
   MAX_IMAGE_BYTES,
   uploadProductImages,
 } from "@/lib/admin-products";
+import { shrinkImage } from "@/lib/image-resize";
 
 type Props = {
   value: string[];
@@ -15,12 +16,17 @@ type Props = {
   onUploadingChange?: (uploading: boolean) => void;
 };
 
+// Photos picked from a phone or camera can be big; they're shrunk before upload.
+// This only stops absurdly large files from being loaded into the browser.
+const MAX_PICKED_BYTES = 30 * 1024 * 1024;
+
 const iconBtn =
   "grid h-11 flex-1 place-items-center rounded-lg border border-cream/15 bg-surface text-base text-cream transition-colors hover:border-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-cream/15";
 
 export default function ImageUploader({ value, onChange, onUploadingChange }: Props) {
-  const [uploading, setUploading] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "preparing" | "uploading">("idle");
   const [error, setError] = useState("");
+  const busy = phase !== "idle";
   const remaining = MAX_IMAGES - value.length;
 
   async function handlePick(e: ChangeEvent<HTMLInputElement>) {
@@ -41,20 +47,34 @@ export default function ImageUploader({ value, onChange, onUploadingChange }: Pr
       setError("Only JPG, PNG or WEBP photos are allowed.");
       return;
     }
-    if (files.some((f) => f.size > MAX_IMAGE_BYTES)) {
-      setError("Each photo must be 5MB or smaller.");
+    if (files.some((f) => f.size > MAX_PICKED_BYTES)) {
+      setError("One of those photos is too big (over 30MB). Pick a smaller one.");
       return;
     }
 
-    setUploading(true);
     onUploadingChange?.(true);
     try {
-      const urls = await uploadProductImages(files);
+      setPhase("preparing");
+      let prepared: File[];
+      try {
+        prepared = await Promise.all(files.map((f) => shrinkImage(f, MAX_IMAGE_BYTES)));
+      } catch {
+        setError("Couldn't read one of those photos. Try a different file.");
+        return;
+      }
+
+      if (prepared.some((f) => f.size > MAX_IMAGE_BYTES)) {
+        setError("One photo is still too large after shrinking. Try a smaller one.");
+        return;
+      }
+
+      setPhase("uploading");
+      const urls = await uploadProductImages(prepared);
       onChange([...value, ...urls]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed. Try again.");
     } finally {
-      setUploading(false);
+      setPhase("idle");
       onUploadingChange?.(false);
     }
   }
@@ -89,7 +109,7 @@ export default function ImageUploader({ value, onChange, onUploadingChange }: Pr
                 <button
                   type="button"
                   onClick={() => move(i, -1)}
-                  disabled={uploading || i === 0}
+                  disabled={busy || i === 0}
                   aria-label={`Move photo ${i + 1} earlier`}
                   className={iconBtn}
                 >
@@ -98,7 +118,7 @@ export default function ImageUploader({ value, onChange, onUploadingChange }: Pr
                 <button
                   type="button"
                   onClick={() => move(i, 1)}
-                  disabled={uploading || i === value.length - 1}
+                  disabled={busy || i === value.length - 1}
                   aria-label={`Move photo ${i + 1} later`}
                   className={iconBtn}
                 >
@@ -107,7 +127,7 @@ export default function ImageUploader({ value, onChange, onUploadingChange }: Pr
                 <button
                   type="button"
                   onClick={() => remove(i)}
-                  disabled={uploading}
+                  disabled={busy}
                   aria-label={`Remove photo ${i + 1}`}
                   className={`${iconBtn} hover:border-red-400 hover:text-red-300`}
                 >
@@ -125,20 +145,22 @@ export default function ImageUploader({ value, onChange, onUploadingChange }: Pr
         accept="image/jpeg,image/png,image/webp"
         multiple
         onChange={handlePick}
-        disabled={uploading || remaining === 0}
+        disabled={busy || remaining === 0}
         className="peer sr-only"
       />
       <label
         htmlFor="p-photos"
-        className={`flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-ember/50 text-sm font-medium text-ember transition-colors hover:bg-ember/10 peer-focus-visible:ring-2 peer-focus-visible:ring-ember peer-disabled:cursor-not-allowed peer-disabled:opacity-50 sm:w-auto sm:px-8`}
+        className="flex h-12 w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-ember/50 text-sm font-medium text-ember transition-colors hover:bg-ember/10 peer-focus-visible:ring-2 peer-focus-visible:ring-ember peer-disabled:cursor-not-allowed peer-disabled:opacity-50 sm:w-auto sm:px-8"
       >
-        {uploading
-          ? "Uploading..."
-          : value.length === 0
-            ? "Add photos"
-            : remaining === 0
-              ? "Photo limit reached"
-              : "Add more photos"}
+        {phase === "preparing"
+          ? "Preparing photos..."
+          : phase === "uploading"
+            ? "Uploading..."
+            : value.length === 0
+              ? "Add photos"
+              : remaining === 0
+                ? "Photo limit reached"
+                : "Add more photos"}
       </label>
 
       <div aria-live="polite">

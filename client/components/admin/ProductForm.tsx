@@ -192,7 +192,7 @@ export default function ProductForm({ initial, submitLabel, onSubmit }: Props) {
         <p className="mb-1.5 text-sm font-medium text-cream/80">Photos</p>
         <ImageUploader value={images} onChange={setImages} onUploadingChange={setUploading} />
         <p className="mt-1.5 text-xs text-cream/50">
-          The first photo is the main one. JPG, PNG or WEBP, up to 5MB each, max {MAX_IMAGES} photos.
+          The first photo is the main one. JPG, PNG or WEBP, max {MAX_IMAGES} photos. Big photos are shrunk automatically.
         </p>
       </div>
 
