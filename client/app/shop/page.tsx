@@ -120,7 +120,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Params 
               <path d="m20 20-3.5-3.5" />
             </svg>
           </div>
-          <h2 className="mt-5 max-w-full break-words font-display text-xl font-semibold">{emptyTitle}</h2>
+          <h2 className="mt-5 max-w-full wrap-break-words font-display text-xl font-semibold">{emptyTitle}</h2>
           <p className="mt-2 max-w-sm text-sm text-cream/60">{emptyText}</p>
           {emptyAction && (
             <Link
