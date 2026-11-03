@@ -13,6 +13,10 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
+// Behind Render's proxy: trust it so req.ip, rate limits and secure cookies work.
+// 1 hop by default; TRUST_PROXY_HOPS can change it without a code change.
+app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS) || 1);
+
 const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
   .split(",")
   .map((url) => url.trim());
