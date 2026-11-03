@@ -1,4 +1,10 @@
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+// Server-side calls (pages, metadata, sitemap) go straight to the API.
+// API_ORIGIN is the API's address with no /api, e.g. https://ember-api.onrender.com
+// Without it (plain local dev) we fall back to NEXT_PUBLIC_API_URL, then localhost.
+const API_ORIGIN = process.env.API_ORIGIN?.replace(/\/$/, "");
+const API = API_ORIGIN
+  ? `${API_ORIGIN}/api`
+  : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api");
 
 export const CATEGORIES = ["Tops", "Bottoms", "Outerwear", "Footwear", "Accessories"] as const;
 
