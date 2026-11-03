@@ -5,10 +5,31 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import CartDrawer from "@/components/cart/CartDrawer";
 import CartHydrator from "@/components/cart/CartHydrator";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+
+const description =
+  "Shop men's shirts, denim, jackets, shoes and accessories at Ember. Free delivery over $120 and 7-day easy returns.";
 
 export const metadata: Metadata = {
-  title: "Ember – Menswear",
-  description: "Dress sharp. Own the room.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Ember Menswear | Dress sharp. Own the room.",
+    template: "%s | Ember",
+  },
+  description,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: "Ember Menswear | Dress sharp. Own the room.",
+    description,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ember Menswear | Dress sharp. Own the room.",
+    description,
+  },
 };
 
 export const viewport: Viewport = {
