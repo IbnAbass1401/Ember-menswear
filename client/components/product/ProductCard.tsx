@@ -14,6 +14,7 @@ export default function ProductCard({ product }: { product: Product }) {
             src={product.images?.[0]}
             alt={product.name}
             label
+            sizes="(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw"
             className="aspect-4/5 w-full transition duration-500 group-hover:scale-105"
           />
           {product.stock <= 0 && (

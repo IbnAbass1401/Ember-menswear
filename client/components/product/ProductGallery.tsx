@@ -42,6 +42,8 @@ export default function ProductGallery({ images, alt }: Props) {
               src={src}
               alt={multiple ? `${alt} (photo ${i + 1} of ${slides.length})` : alt}
               label
+              priority={i === 0}
+              sizes="(min-width: 1024px) 560px, 100vw"
               className="aspect-4/5 w-full"
             />
           </div>
@@ -63,7 +65,7 @@ export default function ProductGallery({ images, alt }: Props) {
                     : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
-                <Photo src={src} alt="" className="h-full w-full" />
+                <Photo src={src} alt="" sizes="64px" className="h-full w-full" />
               </button>
             </li>
           ))}
