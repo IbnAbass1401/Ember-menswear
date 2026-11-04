@@ -74,19 +74,25 @@ Store rules: prices are in USD, delivery is **free when the items total is over 
 
 ## Screenshots
 
-<!--
-Add screenshots to docs/screenshots/ and uncomment this block:
+### Desktop
 
 | Home | Product page |
 |---|---|
-| ![Home](docs/screenshots/home.png) | ![Product](docs/screenshots/product.png) |
+| ![Home](docs/screenshots/desktop-home.png) | ![Product page](docs/screenshots/desktop-product.png) |
 
 | Checkout | Admin dashboard |
 |---|---|
-| ![Checkout](docs/screenshots/checkout.png) | ![Admin](docs/screenshots/admin.png) |
--->
+| ![Checkout](docs/screenshots/desktop-checkout.png) | ![Admin dashboard](docs/screenshots/desktop-admin.png) |
 
+### Mobile
 
+<p align="center">
+  <img src="docs/screenshots/mobile-home.png" alt="Home on mobile" width="190">
+  <img src="docs/screenshots/mobile-shop.png" alt="Shop on mobile" width="190">
+  <img src="docs/screenshots/mobile-allproduct.png" alt="Product page on mobile" width="190">
+  <img src="docs/screenshots/mobile-product.png" alt="A single product on mobile" width="190">
+  <img src="docs/screenshots/mobile-cart.png" alt="Cart drawer on mobile" width="190">
+</p>
 
 ## Features
 
@@ -333,22 +339,6 @@ sequenceDiagram
   P->>A: Webhook charge.success (safety net)
 ```
 
-- Prices are shown in USD. At payment time the total is converted to NGN with `USD_NGN_RATE`, and the charged amount in kobo is stored on the order.
-- Both **verify** and the **webhook** check currency (NGN), the exact amount and the order id before marking an order paid.
-- `markOrderPaid` is **idempotent**: it atomically flips `pending` to `paid`, then reduces stock with a `$gte` guard. If stock ran out in the meantime, the order is flagged `stockIssue`.
-- Cancelling a paid order and refunds are done manually in the Paystack dashboard.
-
-## Security
-
-- Passwords hashed with bcrypt (cost 12), never returned by the API
-- JWT stored in an **httpOnly** cookie (`SameSite=None; Secure` in production), 7-day lifetime
-- `helmet`, a CORS allow-list from `CLIENT_URL`, and rate limits on register, login and password change
-- All input validated with Zod; unknown fields are stripped
-- Role checks on the server (`protect`, `restrictTo("admin")`); the client guard is only for navigation
-- Webhook signature verified against the raw request body
-- Uploads limited by type and size, and restricted to admins
-- Secrets live only in environment variables; `.env` files are git-ignored
-
 ## Design system
 
 **Amber Noir**: dark, warm, with glow used only to guide action.
@@ -383,14 +373,6 @@ Fonts: **Bricolage Grotesque** (headings, `font-display`) and **DM Sans** (body)
 | Root directory | `client` |
 | Environment | `NEXT_PUBLIC_API_URL=/api`, `API_ORIGIN=https://<your-api>.onrender.com`, `NEXT_PUBLIC_SITE_URL=https://<your-site>.vercel.app` |
 
-### After the first deploy
-
-1. Put the real site address into `CLIENT_URL` on Render and redeploy the API.
-2. In Paystack (Test mode) set the **Test Webhook URL** to `https://<your-api>.onrender.com/api/payments/webhook`.
-3. Create your real admin (see [Getting started](#5-create-your-admin)) and remove any test accounts and orders.
-4. Test the whole flow on a phone over mobile data: register, add to cart, pay with the test card, then close the tab right after paying and confirm the order still turns **Paid** (that proves the webhook).
-5. Share a product link on WhatsApp to check the share card.
-
 ### Going live with real payments
 
 Activate your Paystack business, replace `PAYSTACK_SECRET_KEY` with the live key, set the **Live Webhook URL**, and test with one small real payment. Keep `USD_NGN_RATE` current, and consider a paid plan so the API never sleeps.
@@ -410,29 +392,10 @@ Activate your Paystack business, replace `PAYSTACK_SECRET_KEY` with the live key
 | Order stays pending after paying and closing the tab | Webhook not reaching the API: check the webhook URL and that `PAYSTACK_SECRET_KEY` matches the dashboard key |
 | Paid order but the customer sees a stock problem | The item sold out between checkout and payment (`stockIssue`). Refund manually in Paystack |
 
-## Known limitations and ideas
-
-**Known limitations**
-
-- Cancelling a pending order while its Paystack page is still open could charge the customer for a cancelled order.
-- Changing a password does not sign out other sessions (JWT is stateless, valid for 7 days).
-- Admins cannot change roles from the UI; roles are changed in Atlas.
-- Paid-order cancellation and refunds are manual in the Paystack dashboard.
-- `USD_NGN_RATE` is a fixed number that must be updated by hand.
-- Stock is one number per product, not per size.
-- Recent orders on the admin dashboard are not clickable yet.
-
-**Ideas (not promised)**
-
-- Order confirmation emails and password reset
-- Role management and per-size stock in the admin area
-- Automatic exchange rate
-- A custom domain and a paid always-on API
-
 ## License
 
-No license has been chosen yet, so all rights are reserved by default. If you want others to reuse the code, add a `LICENSE` file (see [choosealicense.com](https://choosealicense.com/)).
+Released under the MIT License. You are free to use, copy, modify and distribute the code, as long as the copyright notice and license text are kept.
 
 ---
 
-Built by [IbnAbass1401](https://github.com/IbnAbass1401). For the full project handoff (decisions, gotchas, status), see [`docs/HANDOFF.md`](docs/HANDOFF.md).
+Built by Abass A.
