@@ -35,12 +35,9 @@ Built with Next.js, Express, MongoDB, Paystack and Cloudinary.
 - [Environment variables](#environment-variables)
 - [Scripts](#scripts)
 - [API reference](#api-reference)
-- [How payments work](#how-payments-work)
-- [Security](#security)
 - [Design system](#design-system)
 - [Deployment](#deployment)
 - [Troubleshooting](#troubleshooting)
-- [Known limitations and ideas](#known-limitations-and-ideas)
 - [License](#license)
 
 ---
@@ -91,7 +88,7 @@ Store rules: prices are in USD, delivery is **free when the items total is over 
   <img src="docs/screenshots/mobile-shop.png" alt="Shop on mobile" width="190">
   <img src="docs/screenshots/mobile-allproduct.png" alt="Product page on mobile" width="190">
   <img src="docs/screenshots/mobile-product.png" alt="A single product on mobile" width="190">
-  <img src="docs/screenshots/mobile-cart.png" alt="Cart drawer on mobile" width="190">
+  <img src="docs/screenshots/mobile-admin.png" alt="Cart drawer on mobile" width="190">
 </p>
 
 ## Features
